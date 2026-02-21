@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: taskflow-app
+    container_name: taskflow_app
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      APP_NAME: TaskFlow
+      APP_ENV: production
+      APP_KEY: ${APP_KEY}
+      APP_DEBUG: "false"
+      APP_URL: ${APP_URL:-http://localhost:8080}
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: taskflow
+      DB_USERNAME: taskflow
+      DB_PASSWORD: ${DB_PASSWORD:-taskflow_secret}
+      SEED_DATABASE: "false"
+      MAIL_MAILER: ${MAIL_MAILER:-log}
+      MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-hello@taskflow.app}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - app_storage:/var/www/storage
+    networks:
+      - taskflow
+
+  db:
+    image: mysql:8.0
+    container_name: taskflow_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_secret}
+      MYSQL_DATABASE: taskflow
+      MYSQL_USER: taskflow
+      MYSQL_PASSWORD: ${DB_PASSWORD:-taskflow_secret}
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - taskflow
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root_secret}"]
+      timeout: 10s
+      retries: 10
+      interval: 5s
+
+  # Optional: PHPMyAdmin for database management
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: taskflow_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8090:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: taskflow
+      PMA_PASSWORD: ${DB_PASSWORD:-taskflow_secret}
+    depends_on:
+      - db
+    networks:
+      - taskflow
+    profiles:
+      - debug
+
+volumes:
+  db_data:
+  app_storage:
+
+networks:
+  taskflow:
+    driver: bridge
