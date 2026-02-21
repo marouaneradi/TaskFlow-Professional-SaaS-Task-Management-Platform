@@ -1,8 +1,8 @@
-# TaskFlow — Professional SaaS Task Management Platform
+# 🚀 TaskFlow -- Professional SaaS Task Management Platform
 
-![TaskFlow Banner](https://via.placeholder.com/1200x400/6366f1/ffffff?text=TaskFlow+SaaS+Platform)
-
-> A production-ready, multi-tenant SaaS task management platform built with Laravel 10, MySQL, pure CSS, and Vite. Portfolio-grade code quality.
+TaskFlow is a modern SaaS task management platform built with Laravel.
+It allows teams to manage projects, assign tasks, and collaborate
+efficiently.
 
 ---
 
@@ -200,116 +200,295 @@ activity_logs
 
 ```
 taskflow/
+│
+├── .env.example                         Environment variables template (DB, mail, app key, etc.)
+├── .gitignore                           Files/folders excluded from Git (vendor, .env, node_modules...)
+├── artisan                              Laravel CLI entry point (run commands like migrate, serve, etc.)
+├── composer.json                        PHP dependencies and autoload configuration
+├── Dockerfile                           Docker image definition for containerized deployment
+├── docker-compose.yml                   Multi-container Docker setup (app, nginx, mysql)
+├── package.json                         Node.js dependencies (Vite, TailwindCSS)
+├── phpunit.xml                          PHPUnit test configuration
+├── README.md                            Project documentation and setup guide
+├── vite.config.js                       Vite bundler config for JS/CSS assets
+│
 ├── app/
-│   ├── Console/                    # Artisan commands
-│   ├── Exceptions/                 # Exception handler
+│   ├── Console/
+│   │   └── Kernel.php                   Registers scheduled commands
+│   ├── Exceptions/
+│   │   └── Handler.php                  Global exception and error handler
 │   ├── Http/
 │   │   ├── Controllers/
-│   │   │   ├── Auth/               # Auth controllers (Login, Register, Reset, Profile)
-│   │   │   ├── Dashboard/          # Dashboard & team switching
-│   │   │   ├── Task/               # Task CRUD controller
-│   │   │   └── Team/               # Team & member controllers
-│   │   ├── Middleware/             # HTTP middleware
-│   │   └── Requests/               # Form Request validation
+│   │   │   ├── Controller.php           Base controller all others extend
+│   │   │   ├── ActivityController.php   Shows team activity log
+│   │   │   ├── Auth/
+│   │   │   │   ├── AuthenticatedSessionController.php   Login / logout
+│   │   │   │   ├── EmailVerificationController.php      Email verification flow
+│   │   │   │   ├── PasswordResetController.php          Forgot & reset password
+│   │   │   │   ├── ProfileController.php                Edit profile & change password
+│   │   │   │   └── RegisteredUserController.php         User registration
+│   │   │   ├── Dashboard/
+│   │   │   │   └── DashboardController.php              Main dashboard with team stats & tasks
+│   │   │   ├── Task/
+│   │   │   │   └── TaskController.php                   CRUD for tasks + status updates
+│   │   │   └── Team/
+│   │   │       ├── TeamController.php                   CRUD for teams
+│   │   │       └── TeamMemberController.php             Add/remove/role members in a team
+│   │   ├── Kernel.php                   Registers global and route middleware
+│   │   ├── Middleware/
+│   │   │   ├── EncryptCookies.php                       Encrypts cookies
+│   │   │   ├── PreventRequestsDuringMaintenance.php     Blocks requests in maintenance mode
+│   │   │   ├── RedirectIfAuthenticated.php              Redirects logged-in users away from guest pages
+│   │   │   ├── TrimStrings.php                          Trims whitespace from input
+│   │   │   ├── TrustProxies.php                         Trusted proxy configuration
+│   │   │   ├── ValidateSignature.php                    Validates signed URLs
+│   │   │   └── VerifyCsrfToken.php                      CSRF protection
+│   │   └── Requests/
 │   │       ├── Auth/
+│   │       │   └── LoginRequest.php                     Validates login credentials
 │   │       ├── Task/
+│   │       │   ├── StoreTaskRequest.php                 Validates new task creation
+│   │       │   └── UpdateTaskRequest.php                Validates task edits
 │   │       └── Team/
-│   ├── Models/                     # Eloquent models (User, Team, Task, ActivityLog)
-│   ├── Policies/                   # Laravel authorization policies
-│   ├── Providers/                  # Service providers
-│   ├── Services/                   # Business logic services (ActivityLogService)
-│   └── View/Components/            # Blade component classes
+│   │           ├── StoreTeamRequest.php                 Validates new team creation
+│   │           └── UpdateTeamRequest.php                Validates team edits
+│   ├── Models/
+│   │   ├── ActivityLog.php              Activity log model (who did what in a team)
+│   │   ├── Task.php                     Task model with scopes, relationships, and stats
+│   │   ├── Team.php                     Team model with members, tasks, and stats
+│   │   └── User.php                     User model with teams and auth
+│   ├── Policies/
+│   │   ├── TaskPolicy.php               Authorization rules for task actions
+│   │   └── TeamPolicy.php               Authorization rules for team actions
+│   ├── Providers/
+│   │   ├── AppServiceProvider.php       App boot logic (sets default string length for MySQL)
+│   │   ├── AuthServiceProvider.php      Registers policies and gates
+│   │   └── RouteServiceProvider.php     Loads and configures routes
+│   ├── Services/
+│   │   └── ActivityLogService.php       Handles writing activity log entries
+│   └── View/Components/
+│       ├── AppLayout.php                Authenticated layout component
+│       └── GuestLayout.php             Guest (login/register) layout component
+│
+├── bootstrap/
+│   ├── app.php                          Creates and configures the Laravel application
+│   └── cache/                           Cached config and routes (auto-generated)
+│
+├── config/
+│   ├── app.php                          App name, timezone, locale, providers
+│   ├── auth.php                         Auth guards and user providers
+│   ├── broadcasting.php                 WebSocket/event broadcasting config
+│   ├── cache.php                        Cache driver config (file, redis, etc.)
+│   ├── cors.php                         Cross-Origin Resource Sharing settings
+│   ├── database.php                     Database connections config
+│   ├── filesystems.php                  File storage disks config
+│   ├── hashing.php                      Password hashing driver (bcrypt)
+│   ├── logging.php                      Log channels config
+│   ├── mail.php                         Mail driver and SMTP config
+│   ├── queue.php                        Queue driver config
+│   ├── sanctum.php                      API token auth config
+│   ├── services.php                     Third-party services (Mailgun, SES, etc.)
+│   ├── session.php                      Session driver and lifetime config
+│   └── view.php                         Blade view paths and compiled views location
+│
 ├── database/
-│   ├── migrations/                 # All database migrations (timestamped)
-│   ├── seeders/                    # Demo data seeder
-│   └── factories/                  # (Optional) Model factories
+│   ├── factories/                       Model factories for test data generation
+│   ├── migrations/
+│   │   ├── 2014_10_12_000000_create_users_table.php              Users table
+│   │   ├── 2014_10_12_100000_create_password_reset_tokens_table.php  Password resets
+│   │   ├── 2014_10_12_200000_create_sessions_table.php           Sessions table
+│   │   ├── 2024_01_01_000001_create_teams_table.php              Teams table
+│   │   ├── 2024_01_01_000002_create_team_user_table.php          Team members pivot table
+│   │   ├── 2024_01_01_000003_create_tasks_table.php              Tasks table
+│   │   └── 2024_01_01_000004_create_activity_logs_table.php      Activity logs table
+│   └── seeders/
+│       └── DatabaseSeeder.php           Seeds demo users, teams, tasks and activity logs
+│
 ├── docker/
-│   ├── nginx.conf                  # Nginx server configuration
-│   ├── php-fpm.conf                # PHP-FPM worker configuration
-│   └── entrypoint.sh               # Container startup script
-├── public/                         # Web root (served by Nginx)
-│   └── index.php                   # Laravel front controller
+│   ├── entrypoint.sh                    Docker container startup script
+│   ├── nginx.conf                       Nginx web server configuration
+│   └── php-fpm.conf                     PHP-FPM process manager configuration
+│
+├── public/
+│   ├── .htaccess                        Apache URL rewriting rules
+│   ├── index.php                        Application entry point (all requests go here)
+│   └── robots.txt                       Search engine crawler instructions
+│
 ├── resources/
 │   ├── css/
-│   │   └── app.css                 # Complete design system (2000+ lines, no frameworks)
+│   │   └── app.css                      Main stylesheet (TailwindCSS)
 │   ├── js/
-│   │   ├── app.js                  # Application JavaScript (theme, UI, charts)
-│   │   └── bootstrap.js            # Axios setup
+│   │   ├── app.js                       Main JavaScript entry point
+│   │   └── bootstrap.js                 Axios and JS library setup
 │   └── views/
-│       ├── auth/                   # Login, register, forgot-password, etc.
-│       ├── dashboard/              # Dashboard & no-team state
-│       ├── layouts/                # app.blade.php, guest.blade.php
-│       ├── tasks/                  # Task CRUD views
-│       ├── teams/                  # Team CRUD + member management
-│       ├── activity/               # Activity timeline
-│       ├── profile/                # User profile settings
-│       └── vendor/pagination/      # Custom pagination component
+│       ├── activity/
+│       │   └── index.blade.php          Team activity log page
+│       ├── auth/
+│       │   ├── forgot-password.blade.php   Forgot password form
+│       │   ├── login.blade.php             Login form
+│       │   ├── register.blade.php          Registration form
+│       │   ├── reset-password.blade.php    Reset password form
+│       │   └── verify-email.blade.php      Email verification notice
+│       ├── dashboard/
+│       │   ├── index.blade.php          Main dashboard view (stats, tasks, team)
+│       │   └── no-team.blade.php        Shown when user has no team yet
+│       ├── layouts/
+│       │   ├── app.blade.php            Authenticated app shell (nav, sidebar)
+│       │   └── guest.blade.php          Guest pages shell (login/register wrapper)
+│       ├── profile/
+│       │   └── edit.blade.php           Profile edit page (name, email, password)
+│       ├── tasks/
+│       │   ├── create.blade.php         Create task form
+│       │   ├── edit.blade.php           Edit task form
+│       │   ├── index.blade.php          Task list with filters
+│       │   └── show.blade.php           Single task detail view
+│       └── teams/
+│           ├── create.blade.php         Create team form
+│           ├── edit.blade.php           Edit team form
+│           ├── index.blade.php          Teams list
+│           └── show.blade.php           Team detail with members and tasks
+│
 ├── routes/
-│   ├── web.php                     # All web routes
-│   ├── api.php                     # API routes (Sanctum)
-│   └── console.php                 # Artisan routes
-├── Dockerfile                      # Multi-stage Docker build
-├── docker-compose.yml              # Full stack with MySQL
-├── vite.config.js                  # Vite configuration
-├── package.json                    # Node.js dependencies
-├── composer.json                   # PHP dependencies
-└── .env.example                    # Environment template
+│   ├── api.php                          API routes (stateless)
+│   ├── console.php                      Artisan console command routes
+│   └── web.php                          All web routes (auth, dashboard, teams, tasks)
+│
+├── storage/
+│   ├── app/public/                      User-uploaded files
+│   ├── framework/
+│   │   ├── cache/                       Framework cache files
+│   │   ├── sessions/                    Session files
+│   │   ├── testing/                     Test storage
+│   │   └── views/                       Compiled Blade templates
+│   └── logs/                            Application log files
+│
+└── tests/
+    ├── CreatesApplication.php           Trait to boot the app in tests
+    ├── TestCase.php                     Base test class
+    ├── Feature/                         Feature/integration tests
+    └── Unit/                            Unit tests
 ```
 
 ---
 
 ## 🚀 Installation
 
-### Prerequisites
-- PHP 8.1+
-- Composer 2+
-- Node.js 18+ & npm
-- MySQL 8.0+
+📦 Tech Stack
 
-### Steps
-Requirements
+Laravel 10
 
 PHP 8.1+
-Composer
+
+Laravel Breeze (Authentication)
+
+Laravel Sanctum
+
 MySQL
+
+Vite
+
 Node.js & NPM
 
-Installation
-bashgit clone https://github.com/marouaneradi/TaskFlow-Professional-SaaS-Task-Management-Platform.git
-cd taskflow
-1. Install dependencies
-bash 
-   -composer install
-   -npm install
-2. Environment setup
-bashcp
-- .env.example .env
-- php artisan key:generate
-3. Configure your database
-Open .env and update these lines with your MySQL credentials:
-envDB_DATABASE=taskflow
+⚙️ Prerequisites
+
+Make sure you have installed:
+
+PHP 8.1+
+
+Composer 2+
+
+MySQL 8.0+
+
+Node.js 18+
+
+NPM
+
+## 📦 Tech Stack
+
+-   Laravel 10
+-   PHP 8.1+
+-   Laravel Breeze (Authentication)
+-   Laravel Sanctum
+-   MySQL
+-   Vite
+-   Node.js & NPM
+
+------------------------------------------------------------------------
+
+## ⚙️ Prerequisites
+
+Make sure you have installed:
+
+-   PHP 8.1+
+-   Composer 2+
+-   MySQL 8.0+
+-   Node.js 18+
+-   NPM
+
+------------------------------------------------------------------------
+
+## 🚀 Installation
+
+### 1️⃣ Clone the repository
+
+``` bash
+git clone https://github.com/marouaneradi/TaskFlow-Professional-SaaS-Task-Management-Platform.git
+cd TaskFlow-Professional-SaaS-Task-Management-Platform
+```
+
+### 2️⃣ Install dependencies
+
+``` bash
+composer install
+npm install
+```
+
+### 3️⃣ Environment setup
+
+``` bash
+cp .env.example .env
+php artisan key:generate
+```
+
+### 4️⃣ Configure Database
+
+Open the `.env` file and update your MySQL credentials:
+
+``` env
+DB_DATABASE=taskflow
 DB_USERNAME=root
 DB_PASSWORD=your_password
-4. Run migrations & seed demo data
-bash
--php artisan migrate --seed
-5. Build frontend assets
-bash
--npm run build
-6. Start the server
-bashphp artisan serve
-Visit http://localhost:8000
+```
 
-Demo Accounts
-Email Password radimarouane05@gmail.com password 
+### 5️⃣ Run migrations & seed demo data
 
-Tech Stack
+``` bash
+php artisan migrate --seed
+```
 
-Laravel 10, PHP 8.1+
-Laravel Breeze (auth)
-Laravel Sanctum
-MySQL
-Vite 
+### 6️⃣ Build frontend assets
 
-License
-MIT
+``` bash
+npm run build
+```
+
+### 7️⃣ Start the development server
+
+``` bash
+php artisan serve
+```
+
+Visit:
+
+http://localhost:8000
+
+------------------------------------------------------------------------
+
+## 🔐 Demo Account
+
+Email: radimarouane05@gmail.com\
+Password: password
+
+------------------------------------------------------------------------
+
+
