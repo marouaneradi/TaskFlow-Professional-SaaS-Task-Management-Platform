@@ -491,4 +491,12 @@ Password: password
 
 ------------------------------------------------------------------------
 
+## 📸 Screenshots
 
+Here’s a demo of the dashboard:
+
+![TaskFlow Dashboard](assets/dashboard.png)
+
+Here’s a demo of the login:
+
+![TaskFlow login](assets/login.png)
